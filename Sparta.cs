@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
+using System.ComponentModel;
+using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Sparta
 {
@@ -22,7 +24,7 @@ namespace Sparta
 
         public bool IsDead => CurrentHealth <= 0;
 
-        public int[] Inven = new int[20]; // 인벤토리 배열
+        public string[] Inven = new string[20] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" , "0", "0", "0", "0"}; // 인벤토리 배열
 
         public Warrior(string name)
         {
@@ -39,7 +41,7 @@ namespace Sparta
             Exp = 0; // 초기 경험치
         }
 
-        public void CharacterInfo()
+        public void CharacterInfo()     //상태보기
         {
             int Infoinput = 1;
 
@@ -66,33 +68,69 @@ namespace Sparta
             } while (Infoinput != 0);
         }
         
-        public void Inventory()
+        public void Inventory()     //인벤토리
         {
-            Console.WriteLine("인벤토리");
-            Console.WriteLine("보유 중인 아이템을 관리할 수 있습니다.");
-            Console.WriteLine();
-            Console.WriteLine("[아이템 목록]");
-            Console.WriteLine();
-            for (int i = 0; i < Inven.Length; i++)
-            {
-                if (Inven[i] != 0)
+            while (true) {
+                Console.WriteLine("인벤토리");
+                Console.WriteLine("보유 중인 아이템을 관리할 수 있습니다.");
+                Console.WriteLine();
+                Console.WriteLine("[아이템 목록]");
+                Console.WriteLine();
+                for (int i = 0; i < Inven.Length; i++)
                 {
-                    Console.WriteLine($"{i + 1}. 아이템 이름");
+                    if (Inven[i] != "0")
+                    {
+                        Console.WriteLine($"{Inven[i]}");
+                    }
+                }
+                Console.WriteLine("");
+                Console.WriteLine("1. 장착 관리");
+                Console.WriteLine("2. 나가기");
+                Console.WriteLine("");
+                Console.WriteLine("원하시는 행동을 입력해주세요.");
+                string inveninput = Console.ReadLine();
+                if (inveninput == "1")
+                {
+                    Console.WriteLine("인벤토리 - 장착 관리");
+                    Console.WriteLine("보유 중인 아이템을 관리할 수 있습니다.");
+                    Console.WriteLine();
+                    Console.WriteLine("[아이템 목록]");
+                    Console.WriteLine();
+                    for (int k = 0; k < Inven.Length; k++)
+                    {
+                        if (Inven[k] != "0")
+                        {
+                            Console.WriteLine($"{k + 1}. {Inven[k]}");
+                        }
+                    }
+                    Console.WriteLine("");
+                    Console.WriteLine("0. 나가기");
+                    Console.WriteLine("");
+                    Console.WriteLine("원하시는 행동을 입력해주세요.");
+                    string inveninput2 = Console.ReadLine();
+                    if (inveninput2 != "0")
+                }
+                else if (inveninput == "2")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("잘못된 입력입니다.");
                 }
             }
-            
         }
-        public void GetItem(int ItemCode)
+        public void GetItem(string Name)    //인벤토리가 가득차지 않았다면 아이템창에 아이템 추가
         {
             int j = 0;
-            while (j < Inven.Length && Inven[j] != 0) ;
+            while (j < Inven.Length && Inven[j] != "0") ;
                 j++;
             if (j >= Inven.Length)
                 Console.WriteLine("인벤토리가 가득 차있어 아이템을 더 이상 획득할 수 없습니다.");
             else
-                Inven[j] = ItemCode;
+                Inven[j] = Name;
         }
-        public void LevelUp()
+        public void LevelUp()       //던전 클리어시 100경험치, 레벨*100 경험치를 모으면 레벨업
         { 
             if (Exp >= Level * 100)
             {
@@ -110,105 +148,104 @@ namespace Sparta
     public class Item
     {
 
-        public int ItemCode { get; set; }
-        public int AddattackPower { get; set; }
-        public int AddDefense { get; set; }
-        public int ItemPrice { get; set; }
-        public string ItemName { get; set; }
-        public string ItemType { get; set; }
-        public string ItemText { get; set; }
-
-        public Item(int itemCode, int addattackPower, int addDefense, int itemPrice, string itemName, string itemType, string itemText)
-        {
-            ItemCode = itemCode;
-            AddattackPower = addattackPower;
-            AddDefense = addDefense;
-            ItemPrice = itemPrice;
-            ItemName = itemName;
-            ItemType = itemType;
-            ItemText = itemText;
-        }
-
-        public void EquipItem()
-        {
-            Console.WriteLine("아이템을 장착하였습니다.");
-        }
+        string Name { get; }
+        public void EquipItem(Warrior warrior)
         public void SellItem()
         {
             Console.WriteLine("아이템을 판매하였습니다.");
         }
         public void ItemInfo(int itemCode)
-        { 
-            
+        {
+            if (itemCode > 100)
+            {
+                Console.Write("[E]");
+                if (itemCode == 101)
+                    Console.WriteLine("");
+            }
         }
     }
 
     public class NoviceArmor : Item
     {
-        public NoviceArmor() : base(1, 0, 5, 1000, "수련자 갑옷", "방어구", "수련에 도움을 주는 갑옷입니다.");
+        public string Name => "수련자 갑옷";
+        public void EquipItem(Warrior warrior)
+        {
+            Console.WriteLine("아이템을 장착하였습니다.");
+            warrior.DefensePlus += 5;
+        }
+
     }
 
     public class IronArmor : Item
     {
-        public IronArmor() : base(2, 0, 9, 2000, "무쇠 갑옷", "방어구", "무쇠로 만들어져 튼튼한 갑옷입니다.");
+        public string Name => "무쇠갑옷";
+        public void EquipItem(Warrior warrior)
+        {
+            Console.WriteLine("아이템을 장착하였습니다.");
+            warrior.DefensePlus += 9;
+        }
+
     }
 
     public class SpartanArmor : Item
     {
-        public SpartanArmor() : base(3, 0, 15, 3500, "스파르타의 갑옷", "방어구", "스파르타의 전사들이 사용했다는 전설의 갑옷입니다.");
+        public string Name => "스파르타의 갑옷";
+        public void EquipItem(Warrior warrior)
+        {
+            Console.WriteLine("아이템을 장착하였습니다.");
+            warrior.DefensePlus += 15;
+        }
+
     }
 
     public class OldSword : Item
     {
-        public OldSword() : base(4, 2, 0, 600, "낡은 검", "무기", "쉽게 볼 수 있는 낡은 검입니다.");
+        public string Name => "스파르타의 갑옷";
+        public void EquipItem(Warrior warrior)
+        {
+            Console.WriteLine("아이템을 장착하였습니다.");
+            warrior.AttackPowerPlus+= 2;
+        }
+
     }
 
-    public class IronSword : Item
+    public class BronzeAxe : Item
     {
-        public IronSword() : base(5, 5, 0, 1500, "무쇠 검", "무기", "무쇠로 만들어져 튼튼한 검입니다.");
+        public string Name => "청동 도끼";
+        public void EquipItem(Warrior warrior)
+        {
+            Console.WriteLine("아이템을 장착하였습니다.");
+            warrior.AttackPowerPlus+= 5;
+        }
+
     }
 
     public class SpartanSpear : Item
     {
-        public SpartanSpear() : base(6, 7, 0, 2500, "스파르타의 창", "무기", "스파르타의 전사들이 사용했다는 전설의 창입니다.");
+        public string Name => "스파르타의 창";
+        public void EquipItem(Warrior warrior)
+        {
+            Console.WriteLine("아이템을 장착하였습니다.");
+            warrior.AttackPowerPlus += 7;
+        }
+
     }
 
 
     // 각종 메뉴들 관리 클래스
-    public class Menu
-    {
-        
-        public void Shop()
-        {
-            Console.WriteLine("상점");
-            Console.WriteLine("필요한 아이템을 얻을 수 있는 상점입니다.");
-            Console.WriteLine("");
-            Console.WriteLine("[보유 골드]");
-            Console.WriteLine($"{/*캐릭터 보유 골드*/}G");
-            Console.WriteLine("");
-            Console.WriteLine("[아이템 목록]");
-            for (int i = 1; i < 7; i++)
-                Item.ItemInfo(i);
-            Console.WriteLine("");
-            Console.WriteLine("1. 아이템 구매");
-            Console.WriteLine("0. 나가기");
-            Console.WriteLine("");
-            Console.WriteLine("원하시는 행동을 입력해주세요.");
-            int Shopinput = Convert.ToInt32(Console.ReadLine());
-        }
-    }
+
 
 
     public class Stage      //다른 클래스간의 정보 상호작용
     {
         private Warrior player;
-        private List<Item> items;
+        private List<Item> item;
 
         public delegate void ItemDelegate(Item item);
         public Stage(Warrior player, List<Item> items)
         { 
             this.player = player;
-            this.items = items;
+            this.item = items;
         }
 
         public void DungeonStage()
@@ -216,14 +253,135 @@ namespace Sparta
         
         }
 
-        public 
+        int Shopinput;
+        string[] Price = new string[6] { "1000 G", "2000 G", "3500 G", "600 G", "1500 G", "2500 G" };
+        public void Shop()
+        {
+            
+            while (true)
+            {
+                Console.WriteLine("상점");
+                Console.WriteLine("필요한 아이템을 얻을 수 있는 상점입니다.");
+                Console.WriteLine("");
+                Console.WriteLine("[보유 골드]");
+                Console.WriteLine($"{player.Gold}G");
+                Console.WriteLine("");
+                Console.WriteLine("[아이템 목록]");
+                Console.WriteLine($"- 수련자 갑옷    | 방어력 +5  | 수련에 도움을 주는 갑옷입니다.             |  {Price[0]}");
+                Console.WriteLine($"- 무쇠갑옷      | 방어력 +9  | 무쇠로 만들어져 튼튼한 갑옷입니다.           |  {Price[1]}");
+                Console.WriteLine($"- 스파르타의 갑옷 | 방어력 +15 | 스파르타의 전사들이 사용했다는 전설의 갑옷입니다.|  {Price[2]}");
+                Console.WriteLine($"- 낡은 검      | 공격력 +2  | 쉽게 볼 수 있는 낡은 검 입니다.            |  {Price[3]}");
+                Console.WriteLine($"- 청동 도끼     | 공격력 +5  |  어디선가 사용됐던거 같은 도끼입니다.        |  {Price[4]}");
+                Console.WriteLine($"- 스파르타의 창  | 공격력 +7  | 스파르타의 전사들이 사용했다는 전설의 창입니다. |  {Price[5]}");
+                Console.WriteLine("");
+                Console.WriteLine("1. 아이템 구매");
+                Console.WriteLine("0. 나가기");
+                Console.WriteLine("");
+                Console.WriteLine("원하시는 행동을 입력해주세요.");
+                Shopinput = Convert.ToInt32(Console.ReadLine());
+                if (Shopinput == 1)
+                {
+                    Console.WriteLine("상점 - 아이템 구매");
+                    Console.WriteLine("필요한 아이템을 얻을 수 있는 상점입니다.");
+                    Console.WriteLine("");
+                    Console.WriteLine("[보유 골드]");
+                    Console.WriteLine($"{player.Gold}G");
+                    Console.WriteLine("");
+                    Console.WriteLine("[아이템 목록]");
+                    Console.WriteLine($"- 1 수련자 갑옷    | 방어력 +5  | 수련에 도움을 주는 갑옷입니다.             |  {Price[0]}");
+                    Console.WriteLine($"- 2 무쇠갑옷      | 방어력 +9  | 무쇠로 만들어져 튼튼한 갑옷입니다.           |  {Price[2]}");
+                    Console.WriteLine($"- 3 스파르타의 갑옷 | 방어력 +15 | 스파르타의 전사들이 사용했다는 전설의 갑옷입니다.|  {Price[3]}");
+                    Console.WriteLine($"- 4 낡은 검      | 공격력 +2  | 쉽게 볼 수 있는 낡은 검 입니다.            |  {Price[4]}");
+                    Console.WriteLine($"- 5 청동 도끼     | 공격력 +5  |  어디선가 사용됐던거 같은 도끼입니다.        |  {Price[5]}");
+                    Console.WriteLine($"- 6 스파르타의 창  | 공격력 +7  | 스파르타의 전사들이 사용했다는 전설의 창입니다. |  {Price[6]}");
+                    Console.WriteLine("");
+                    Console.WriteLine("0. 나가기");
+                    Console.WriteLine("");
+                    Console.WriteLine("원하시는 행동을 입력해주세요.");
+                    int Shopinput2 = Convert.ToInt32(Console.ReadLine());
+                    if (Shopinput2 == 1 && Price[0] != "구매완료")
+                    {
+                        if (player.Gold >= 1000)
+                        {
+                            Price[0] = "구매완료";
+                            player.Gold -= 1000;
+                            player.GetItem("- 수련자 갑옷    | 방어력 +5  | 수련에 도움을 주는 갑옷입니다.");
+                        }
+                        else
+                            Console.WriteLine("골드가 부족합니다");
+                    }
+                    else if (Shopinput2 == 2 && Price[1] != "구매완료")
+                    {
+                        if (player.Gold >= 2000)
+                        {
+                            Price[1] = "구매완료";
+                            player.Gold -= 2000;
+                            player.GetItem("- 무쇠갑옷      | 방어력 +9  | 무쇠로 만들어져 튼튼한 갑옷입니다.");
+                        }
+                        else
+                            Console.WriteLine("골드가 부족합니다");
+                    }
+                    else if (Shopinput2 == 3 && Price[2] != "구매완료")
+                    {
+                        if (player.Gold >= 3500)
+                        {
+                            Price[2] = "구매완료";
+                            player.Gold -= 3500;
+                            player.GetItem("- 스파르타의 갑옷 | 방어력 +15 | 스파르타의 전사들이 사용했다는 전설의 갑옷입니다.");
+                        }
+                        else
+                            Console.WriteLine("골드가 부족합니다");
+                    }
+                    else if (Shopinput2 == 4 && Price[3] != "구매완료")
+                    {
+                        if (player.Gold >= 600)
+                        {
+                            Price[3] = "구매완료";
+                            player.Gold -= 600;
+                            player.GetItem("- 낡은 검      | 공격력 +2  | 쉽게 볼 수 있는 낡은 검 입니다.");
+                        }
+                        else
+                            Console.WriteLine("골드가 부족합니다");
+                    }
+                    else if (Shopinput2 == 5 && Price[4] != "구매완료")
+                    {
+                        if (player.Gold >= 1500)
+                        {
+                            Price[4] = "구매완료";
+                            player.Gold -= 1500;
+                            player.GetItem("- 청동 도끼     | 공격력 +5  |  어디선가 사용됐던거 같은 도끼입니다.");
+                        }
+                        else
+                            Console.WriteLine("골드가 부족합니다");
+                    }
+                    else if (Shopinput2 == 6 && Price[5] != "구매완료")
+                    {
+                        if (player.Gold >= 2500)
+                        {
+                            Price[5] = "구매완료";
+                            player.Gold -= 2500;
+                            player.GetItem("- 스파르타의 창  | 공격력 +7  | 스파르타의 전사들이 사용했다는 전설의 창입니다.");
+                        }
+                        else
+                            Console.WriteLine("골드가 부족합니다");
+                    }
+                    else if (Price[Shopinput2 - 1] == "구매완료")
+                    {
+                        Console.WriteLine("이미 구매한 아이템입니다.");
+                    }
+                    else
+                        Console.WriteLine("잘못된 입력입니다");
+                }
+                else
+                    Console.WriteLine("잘못된 입력입니다");
+            }
+        }
     }
      class Process
      {
         public static void Main(string[] args)
         {
-            Item item = new Item();
-            Menu menu = new Menu();
+            
             string nameinput;
             
 
@@ -251,6 +409,8 @@ namespace Sparta
             }
             //위의 while문을 통해 입력받고 확인받은 nameinput을 캐릭터 생성자에 넣어줘야 함
             Warrior player = new Warrior(nameinput);
+            List < Item > = new List<Item> { new NoviceArmor(), new IronArmor(), new SpartanArmor(), new OldSword(), new BronzeAxe(), new SpartanSpear() };
+            Stage stage = new Stage(player, item);
 
             while (true)
             {
@@ -280,7 +440,7 @@ namespace Sparta
                 }
                 else if (menuselect == 4)
                 {
-                    menu.Shop();
+                    Stage.Shop();
                 }
                 else if (menuselect == 5)
                 {
